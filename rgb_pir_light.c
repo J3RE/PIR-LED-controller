@@ -244,17 +244,11 @@ int main()
     else if ((button_history == 0xff) && !blink_led)
     {
 
-      // get weird berfore sleeping 
-      uint8_t fuck_it = 1;
-      // debug like a boss
-      while(fuck_it)
-      {
-        PORTA |= (1 << LED);
-        _delay_ms(50);
-        PORTA &= ~(1 << LED);
-        _delay_ms(50);
-        fuck_it--;
-      }
+      // blink before sleeping, for debugging
+      PORTA |= (1 << LED);
+      _delay_ms(150);
+      PORTA &= ~(1 << LED);
+
 
       // configure all pins as input while sleeping
       DDRA = 0x00;
@@ -330,7 +324,7 @@ void checkButton()
   static unsigned long millis_button_pressed = 0;
   static uint8_t long_press_detected;
 
-  // clever debouncing stuff
+  // read button status
   button_history = button_history << 1;
   button_history |= (PINA  >> BUTTON) & 0x01;
 
@@ -407,9 +401,10 @@ uint8_t checkLDR()
 
   // disable ADC
   ADCSRA = 0x00;
-  // set as ldr supply as input to save energy
-  DDRB &= ~(1 << PWR_LDR);
+  
   // power down LDR
+  // set LDR supply as input to save energy
+  DDRB &= ~(1 << PWR_LDR);
   PORTB &= ~(1 << PWR_LDR);
 
   if(average_ldr < LDR_THRESHOLD)
